@@ -59,7 +59,10 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen max-w-xl flex-col gap-4 p-4 select-none">
-      <h1 className="text-2xl font-bold">Windesheim iCal Mod</h1>
+      <h1 className="flex items-center gap-2">
+        <span className="text-2xl font-bold">Windesheim iCal Mod</span>
+        <span className="text-xs">v1.1</span>
+      </h1>
       <p>Improve your Windesheim schedule in other calendar apps.</p>
 
       <input
