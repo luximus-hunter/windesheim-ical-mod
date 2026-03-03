@@ -24,10 +24,21 @@ export async function GET(req: NextRequest) {
 
   const key = searchParams.get("key");
   const culture = searchParams.get("culture") ?? "en";
+
+  // Event Removal options
   const removeAllDay = searchParams.get("removeAllDayEvents") === "true";
   const removeFullSpan = searchParams.get("removeFullSpan") === "true";
+
+  // Formatting options
   const removeFloatingCharacters =
     searchParams.get("removeFloatingCharacters") === "true";
+
+  // Description Cleanup
+  const removeTime = searchParams.get("removeTime") === "true";
+  const removeRoom = searchParams.get("removeRoom") === "true";
+  const removeClass = searchParams.get("removeClass") === "true";
+  const removeTeachers = searchParams.get("removeTeachers") === "true";
+  const removeOeEvLUoE = searchParams.get("removeOeEvLUoE") === "true";
 
   if (!key) {
     return new Response("Missing key", { status: 400 });
@@ -108,6 +119,23 @@ export async function GET(req: NextRequest) {
       }
       e.updatePropertyWithValue("summary", modifiedSummary);
     }
+
+    const descriptionRows = event.description
+      .split("\n")
+      .filter((line) => line.length > 0)
+      .map((line) => line.trim())
+      .filter((line) => {
+        if (removeTime && line.startsWith("Time:")) return false;
+        if (removeRoom && line.startsWith("Room:")) return false;
+        if (removeClass && line.startsWith("Class:")) return false;
+        if (removeTeachers && line.startsWith("Teacher(s):")) return false;
+        if (removeOeEvLUoE && line.startsWith("OE/EvL/UoE:")) return false;
+
+        return true;
+      });
+
+    const description = descriptionRows.join("\n");
+    e.updatePropertyWithValue("description", description);
 
     outputComp.addSubcomponent(e);
   }
