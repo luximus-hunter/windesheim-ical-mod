@@ -12,6 +12,7 @@ export default function Home() {
   const [removeFloatingCharacters, setRemoveFloatingCharacters] =
     useState(false);
   const [teachersAsAttendees, setTeachersAsAttendees] = useState(false);
+  const [classesAsCategories, setClassesAsCategories] = useState(false);
 
   const [removeTime, setRemoveTime] = useState(false);
   const [removeRoom, setRemoveRoom] = useState(false);
@@ -31,6 +32,9 @@ export default function Home() {
     );
     setTeachersAsAttendees(
       localStorage.getItem("teachersAsAttendees") === "true",
+    );
+    setClassesAsCategories(
+      localStorage.getItem("classesAsCategories") === "true",
     );
 
     setRemoveTime(localStorage.getItem("removeTime") === "true");
@@ -52,9 +56,10 @@ export default function Home() {
       culture,
       removeAllDayEvents: String(removeAllDay),
       removeFullSpan: String(removeFullSpan),
-      removeFloatingCharacters: String(removeFloatingCharacters),
 
+      removeFloatingCharacters: String(removeFloatingCharacters),
       teachersAsAttendees: String(teachersAsAttendees),
+      classesAsCategories: String(classesAsCategories),
 
       removeTime: String(removeTime),
       removeRoom: String(removeRoom),
@@ -72,7 +77,7 @@ export default function Home() {
     <main className="flex min-h-screen max-w-xl flex-col gap-4 p-4 select-none">
       <h1 className="flex items-center gap-2">
         <span className="text-2xl font-bold">Windesheim iCal Mod</span>
-        <span className="text-xs">v1.2</span>
+        <span className="text-xs">v1.3</span>
       </h1>
       <p>Improve your Windesheim schedule in other calendar apps.</p>
 
@@ -151,6 +156,21 @@ export default function Home() {
               />
               Mark teachers as attendees
             </label>
+
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={classesAsCategories}
+                onChange={() => {
+                  setClassesAsCategories(!classesAsCategories);
+                  localStorage.setItem(
+                    "classesAsCategories",
+                    String(!classesAsCategories),
+                  );
+                }}
+              />
+              Mark classes as categories (works in some calendar apps)
+            </label>
           </div>
 
           <h2 className="text-lg font-semibold">Description Cleanup</h2>
@@ -227,6 +247,52 @@ export default function Home() {
           <button onClick={generate} disabled={!isValid}>
             Create link
           </button>
+
+          <div>
+            <h2 className="text-lg font-semibold">Instructions</h2>
+
+            <ol className="list-decimal list-inside">
+              <li>
+                Paste your exported Windesheim iCal link into the input above.
+              </li>
+              <li>Adjust the settings to your liking.</li>
+              <li>
+                Click "Create link" to generate a modified iCal link. It will be
+                copied to your clipboard.
+              </li>
+              <li>Use this new link in your calendar app of choice.</li>
+            </ol>
+          </div>
+
+          <div>
+            <h2 className="text-lg font-semibold">License</h2>
+
+            <div className="flex flex-col gap-2">
+              <p>
+                Link to the{" "}
+                <a
+                  className="text-blue-500 underline"
+                  href="https://github.com/luximus-hunter/windesheim-ical-mod"
+                  target="_blank"
+                >
+                  GitHub repository
+                </a>
+                .
+              </p>
+
+              <p>
+                This project is licensed under the{" "}
+                <a
+                  className="text-blue-500 underline"
+                  href="https://github.com/luximus-hunter/windesheim-ical-mod/blob/master/LICENSE"
+                  target="_blank"
+                >
+                  GNU General Public License v3.0.
+                </a>
+                .
+              </p>
+            </div>
+          </div>
         </>
       )}
     </main>

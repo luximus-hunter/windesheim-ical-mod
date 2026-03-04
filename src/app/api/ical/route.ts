@@ -3,6 +3,7 @@ import ICAL from "ical.js";
 
 const DUTCH_TIME_ZONE = "Europe/Amsterdam";
 const FLOATING_CHARACTERS_ARRAY = [" \\,", " \\.", " ,", " ."];
+const SOURCE_URL = "https://ical.windesheim.nl/api/Rooster-v10";
 
 function getTimePartsInTimeZone(date: Date, timeZone: string) {
   const formatter = new Intl.DateTimeFormat("en-GB", {
@@ -34,6 +35,8 @@ export async function GET(req: NextRequest) {
     searchParams.get("removeFloatingCharacters") === "true";
   const teachersAsAttendees =
     searchParams.get("teachersAsAttendees") === "true";
+  const classesAsCategories =
+    searchParams.get("classesAsCategories") === "true";
 
   // Description Cleanup
   const removeTime = searchParams.get("removeTime") === "true";
@@ -46,7 +49,7 @@ export async function GET(req: NextRequest) {
     return new Response("Missing key", { status: 400 });
   }
 
-  const sourceUrl = `https://ical.windesheim.nl/api/Rooster-v10?culture=${culture}&key=${key}`;
+  const sourceUrl = `${SOURCE_URL}?culture=${culture}&key=${key}`;
 
   const res = await fetch(sourceUrl);
   const rawIcs = await res.text();
@@ -182,6 +185,23 @@ export async function GET(req: NextRequest) {
 
         e.addPropertyWithValue("status", "CONFIRMED");
         e.addPropertyWithValue("transp", "OPAQUE");
+      }
+    }
+
+    if (classesAsCategories) {
+      const classLine = descriptionRows.find((line) =>
+        line.startsWith("Class:"),
+      );
+
+      if (classLine) {
+        const classes = classLine
+          .replace("Class:", "")
+          .split(",")
+          .map((c) => c.trim())
+          .filter((c) => c.length > 0)
+          .join(",");
+
+        e.updatePropertyWithValue("categories", classes);
       }
     }
 
