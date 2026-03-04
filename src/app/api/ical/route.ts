@@ -150,42 +150,36 @@ export async function GET(req: NextRequest) {
           .map((t) => t.trim())
           .filter((t) => t.length > 0);
 
+        const makeEmail = (name: string) =>
+          `mailto:${name.toLowerCase().replace(/\s+/g, ".")}@windesheim.invalid`;
+
         const organizer = new ICAL.Property("organizer");
-        
+
         if (teachers.length === 1) {
-          // Single teacher is the organizer
+          // Single teacher becomes organizer
           const teacher = teachers[0];
           organizer.setParameter("CN", teacher);
-          organizer.setValue(
-            `mailto:${teacher.toLowerCase().replace(/\s+/g, ".")}@windesheim.invalid`,
-          );
+          organizer.setValue(makeEmail(teacher));
         } else {
-          // Multiple teachers: Windesheim Rooster is the organizer
+          // Multiple teachers → generic organizer
           organizer.setParameter("CN", "Windesheim Rooster");
           organizer.setValue("mailto:rooster@windesheim.invalid");
         }
-        
-        organizer.setParameter("ROLE", "CHAIR");
-        organizer.setParameter("PARTSTAT", "ACCEPTED");
-        organizer.setParameter("CUTYPE", "INDIVIDUAL");
+
         e.addProperty(organizer);
 
-        for (const teacher of teachers) {
-          // Skip if the teacher is the organizer (single teacher case)
-          if (teachers.length === 1) {
-            continue;
-          }
-          
-          const attendee = new ICAL.Property("attendee");
-          attendee.setParameter("CN", teacher);
-          attendee.setParameter("ROLE", "REQ-PARTICIPANT");
-          attendee.setParameter("PARTSTAT", "ACCEPTED");
-          attendee.setParameter("CUTYPE", "INDIVIDUAL");
-          attendee.setValue(
-            `mailto:${teacher.toLowerCase().replace(/\s+/g, ".")}@windesheim.invalid`,
-          );
+        // Only add attendees if multiple teachers
+        if (teachers.length > 1) {
+          for (const teacher of teachers) {
+            const attendee = new ICAL.Property("attendee");
+            attendee.setParameter("CN", teacher);
+            attendee.setParameter("ROLE", "REQ-PARTICIPANT");
+            attendee.setParameter("PARTSTAT", "ACCEPTED");
+            attendee.setParameter("CUTYPE", "INDIVIDUAL");
+            attendee.setValue(makeEmail(teacher));
 
-          e.addProperty(attendee);
+            e.addProperty(attendee);
+          }
         }
 
         e.addPropertyWithValue("status", "CONFIRMED");
