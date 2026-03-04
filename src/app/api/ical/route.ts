@@ -144,21 +144,38 @@ export async function GET(req: NextRequest) {
       );
 
       if (teacherLine) {
-        const organizer = new ICAL.Property("organizer");
-        organizer.setParameter("CN", "Windesheim Rooster");
-        organizer.setParameter("ROLE", "CHAIR");
-        organizer.setParameter("PARTSTAT", "ACCEPTED");
-        organizer.setParameter("CUTYPE", "INDIVIDUAL");
-        organizer.setValue("mailto:rooster@windesheim.invalid");
-        e.addProperty(organizer);
-
         const teachers = teacherLine
           .replace("Teacher(s):", "")
           .split(";")
           .map((t) => t.trim())
           .filter((t) => t.length > 0);
 
+        const organizer = new ICAL.Property("organizer");
+        
+        if (teachers.length === 1) {
+          // Single teacher is the organizer
+          const teacher = teachers[0];
+          organizer.setParameter("CN", teacher);
+          organizer.setValue(
+            `mailto:${teacher.toLowerCase().replace(/\s+/g, ".")}@windesheim.invalid`,
+          );
+        } else {
+          // Multiple teachers: Windesheim Rooster is the organizer
+          organizer.setParameter("CN", "Windesheim Rooster");
+          organizer.setValue("mailto:rooster@windesheim.invalid");
+        }
+        
+        organizer.setParameter("ROLE", "CHAIR");
+        organizer.setParameter("PARTSTAT", "ACCEPTED");
+        organizer.setParameter("CUTYPE", "INDIVIDUAL");
+        e.addProperty(organizer);
+
         for (const teacher of teachers) {
+          // Skip if the teacher is the organizer (single teacher case)
+          if (teachers.length === 1) {
+            continue;
+          }
+          
           const attendee = new ICAL.Property("attendee");
           attendee.setParameter("CN", teacher);
           attendee.setParameter("ROLE", "REQ-PARTICIPANT");
