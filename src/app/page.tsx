@@ -12,7 +12,6 @@ export default function Home() {
   const [removeFloatingCharacters, setRemoveFloatingCharacters] =
     useState(false);
   const [teachersAsAttendees, setTeachersAsAttendees] = useState(false);
-  const [windesheimAsOrganizer, setWindesheimAsOrganizer] = useState(false);
 
   const [removeTime, setRemoveTime] = useState(false);
   const [removeRoom, setRemoveRoom] = useState(false);
@@ -32,9 +31,6 @@ export default function Home() {
     );
     setTeachersAsAttendees(
       localStorage.getItem("teachersAsAttendees") === "true",
-    );
-    setWindesheimAsOrganizer(
-      localStorage.getItem("windesheimAsOrganizer") === "true",
     );
 
     setRemoveTime(localStorage.getItem("removeTime") === "true");
@@ -59,7 +55,6 @@ export default function Home() {
       removeFloatingCharacters: String(removeFloatingCharacters),
 
       teachersAsAttendees: String(teachersAsAttendees),
-      windesheimAsOrganizer: String(windesheimAsOrganizer),
 
       removeTime: String(removeTime),
       removeRoom: String(removeRoom),
@@ -155,21 +150,6 @@ export default function Home() {
                 }}
               />
               Mark teachers as attendees
-            </label>
-
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={windesheimAsOrganizer}
-                onChange={() => {
-                  setWindesheimAsOrganizer(!windesheimAsOrganizer);
-                  localStorage.setItem(
-                    "windesheimAsOrganizer",
-                    String(!windesheimAsOrganizer),
-                  );
-                }}
-              />
-              Mark Windesheim as organizer (might fix some calendar apps)
             </label>
           </div>
 
