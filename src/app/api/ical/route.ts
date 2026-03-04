@@ -163,23 +163,20 @@ export async function GET(req: NextRequest) {
         } else {
           // Multiple teachers → generic organizer
           organizer.setParameter("CN", "Windesheim Rooster");
-          organizer.setValue("mailto:rooster@windesheim.invalid");
+          organizer.setValue(makeEmail("Windesheim Rooster"));
         }
 
         e.addProperty(organizer);
 
-        // Only add attendees if multiple teachers
-        if (teachers.length > 1) {
-          for (const teacher of teachers) {
-            const attendee = new ICAL.Property("attendee");
-            attendee.setParameter("CN", teacher);
-            attendee.setParameter("ROLE", "REQ-PARTICIPANT");
-            attendee.setParameter("PARTSTAT", "ACCEPTED");
-            attendee.setParameter("CUTYPE", "INDIVIDUAL");
-            attendee.setValue(makeEmail(teacher));
+        for (const teacher of teachers) {
+          const attendee = new ICAL.Property("attendee");
+          attendee.setParameter("CN", teacher);
+          attendee.setParameter("ROLE", "REQ-PARTICIPANT");
+          attendee.setParameter("PARTSTAT", "ACCEPTED");
+          attendee.setParameter("CUTYPE", "INDIVIDUAL");
+          attendee.setValue(makeEmail(teacher));
 
-            e.addProperty(attendee);
-          }
+          e.addProperty(attendee);
         }
 
         e.addPropertyWithValue("status", "CONFIRMED");
