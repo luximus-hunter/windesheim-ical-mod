@@ -34,6 +34,8 @@ export async function GET(req: NextRequest) {
     searchParams.get("removeFloatingCharacters") === "true";
   const teachersAsAttendees =
     searchParams.get("teachersAsAttendees") === "true";
+  const windesheimAsOrganizer =
+    searchParams.get("windesheimAsOrganizer") === "true";
 
   // Description Cleanup
   const removeTime = searchParams.get("removeTime") === "true";
@@ -144,11 +146,12 @@ export async function GET(req: NextRequest) {
       );
 
       if (teacherLine) {
-        // ORGANIZER
-        const organizer = new ICAL.Property("organizer");
-        organizer.setParameter("CN", "Windesheim Rooster");
-        organizer.setValue("mailto:rooster@windesheim.invalid");
-        e.addProperty(organizer);
+        if (windesheimAsOrganizer) {
+          const organizer = new ICAL.Property("organizer");
+          organizer.setParameter("CN", "Windesheim Rooster");
+          organizer.setValue("mailto:rooster@windesheim.invalid");
+          e.addProperty(organizer);
+        }
 
         const teachers = teacherLine
           .replace("Teacher(s):", "")
