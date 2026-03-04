@@ -157,13 +157,14 @@ export async function GET(req: NextRequest) {
 
         if (teachers.length === 1) {
           // Single teacher becomes organizer
-          const teacher = teachers[0];
-          organizer.setParameter("CN", teacher);
-          organizer.setValue(makeEmail(teacher));
+          const name = teachers[0];
+          organizer.setParameter("CN", name);
+          organizer.setValue(makeEmail(name));
         } else {
           // Multiple teachers → generic organizer
-          organizer.setParameter("CN", "Windesheim Rooster");
-          organizer.setValue(makeEmail("Windesheim Rooster"));
+          const name = "Multiple Teachers";
+          organizer.setParameter("CN", name);
+          organizer.setValue(makeEmail(name));
         }
 
         e.addProperty(organizer);
