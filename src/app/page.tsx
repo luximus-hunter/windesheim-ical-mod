@@ -8,8 +8,11 @@ export default function Home() {
   const [input, setInput] = useState("");
   const [removeAllDay, setRemoveAllDay] = useState(false);
   const [removeFullSpan, setRemoveFullSpan] = useState(false);
+
   const [removeFloatingCharacters, setRemoveFloatingCharacters] =
     useState(false);
+  const [teachersAsAttendees, setTeachersAsAttendees] = useState(false);
+
   const [removeTime, setRemoveTime] = useState(false);
   const [removeRoom, setRemoveRoom] = useState(false);
   const [removeClass, setRemoveClass] = useState(false);
@@ -22,9 +25,14 @@ export default function Home() {
     setInput(localStorage.getItem("icalUrl") ?? "");
     setRemoveAllDay(localStorage.getItem("removeAllDay") === "true");
     setRemoveFullSpan(localStorage.getItem("removeFullSpan") === "true");
+
     setRemoveFloatingCharacters(
       localStorage.getItem("removeFloatingCharacters") === "true",
     );
+    setTeachersAsAttendees(
+      localStorage.getItem("teachersAsAttendees") === "true",
+    );
+
     setRemoveTime(localStorage.getItem("removeTime") === "true");
     setRemoveRoom(localStorage.getItem("removeRoom") === "true");
     setRemoveClass(localStorage.getItem("removeClass") === "true");
@@ -45,6 +53,7 @@ export default function Home() {
       removeAllDayEvents: String(removeAllDay),
       removeFullSpan: String(removeFullSpan),
       removeFloatingCharacters: String(removeFloatingCharacters),
+      teachersAsAttendees: String(teachersAsAttendees),
       removeTime: String(removeTime),
       removeRoom: String(removeRoom),
       removeClass: String(removeClass),
@@ -61,7 +70,7 @@ export default function Home() {
     <main className="flex min-h-screen max-w-xl flex-col gap-4 p-4 select-none">
       <h1 className="flex items-center gap-2">
         <span className="text-2xl font-bold">Windesheim iCal Mod</span>
-        <span className="text-xs">v1.1</span>
+        <span className="text-xs">v1.2</span>
       </h1>
       <p>Improve your Windesheim schedule in other calendar apps.</p>
 
@@ -124,6 +133,21 @@ export default function Home() {
                 }}
               />
               Remove floating characters
+            </label>
+
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={teachersAsAttendees}
+                onChange={() => {
+                  setTeachersAsAttendees(!teachersAsAttendees);
+                  localStorage.setItem(
+                    "teachersAsAttendees",
+                    String(!teachersAsAttendees),
+                  );
+                }}
+              />
+              Mark teachers as attendees
             </label>
           </div>
 

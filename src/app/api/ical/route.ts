@@ -32,6 +32,8 @@ export async function GET(req: NextRequest) {
   // Formatting options
   const removeFloatingCharacters =
     searchParams.get("removeFloatingCharacters") === "true";
+  const teachersAsAttendees =
+    searchParams.get("teachersAsAttendees") === "true";
 
   // Description Cleanup
   const removeTime = searchParams.get("removeTime") === "true";
@@ -123,18 +125,56 @@ export async function GET(req: NextRequest) {
     const descriptionRows = event.description
       .split("\n")
       .filter((line) => line.length > 0)
-      .map((line) => line.trim())
-      .filter((line) => {
-        if (removeTime && line.startsWith("Time:")) return false;
-        if (removeRoom && line.startsWith("Room:")) return false;
-        if (removeClass && line.startsWith("Class:")) return false;
-        if (removeTeachers && line.startsWith("Teacher(s):")) return false;
-        if (removeOeEvLUoE && line.startsWith("OE/EvL/UoE:")) return false;
+      .map((line) => line.trim());
 
-        return true;
-      });
+    const modifiedDescriptionRows = descriptionRows.filter((line) => {
+      // CLean up description based on user preferences
+      if (removeTime && line.startsWith("Time:")) return false;
+      if (removeRoom && line.startsWith("Room:")) return false;
+      if (removeClass && line.startsWith("Class:")) return false;
+      if (removeTeachers && line.startsWith("Teacher(s):")) return false;
+      if (removeOeEvLUoE && line.startsWith("OE/EvL/UoE:")) return false;
 
-    const description = descriptionRows.join("\n");
+      return true;
+    });
+
+    if (teachersAsAttendees) {
+      const teacherLine = descriptionRows.find((line) =>
+        line.startsWith("Teacher(s):"),
+      );
+
+      if (teacherLine) {
+        // ORGANIZER
+        const organizer = new ICAL.Property("organizer");
+        organizer.setParameter("CN", "Windesheim Rooster");
+        organizer.setValue("mailto:rooster@windesheim.invalid");
+        e.addProperty(organizer);
+
+        const teachers = teacherLine
+          .replace("Teacher(s):", "")
+          .split(";")
+          .map((t) => t.trim())
+          .filter((t) => t.length > 0);
+
+        for (const teacher of teachers) {
+          const attendee = new ICAL.Property("attendee");
+          attendee.setParameter("CN", teacher);
+          attendee.setParameter("ROLE", "REQ-PARTICIPANT");
+          attendee.setParameter("PARTSTAT", "ACCEPTED");
+          attendee.setParameter("CUTYPE", "INDIVIDUAL");
+          attendee.setValue(
+            `mailto:${teacher.toLowerCase().replace(/\s+/g, ".")}@windesheim.invalid`,
+          );
+
+          e.addProperty(attendee);
+        }
+
+        e.addPropertyWithValue("status", "CONFIRMED");
+        e.addPropertyWithValue("transp", "OPAQUE");
+      }
+    }
+
+    const description = modifiedDescriptionRows.join("\n");
     e.updatePropertyWithValue("description", description);
 
     outputComp.addSubcomponent(e);
